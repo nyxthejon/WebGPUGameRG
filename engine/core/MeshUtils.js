@@ -19,8 +19,8 @@ export function transformMesh(mesh, matrix,
 }
 
 export function calculateAxisAlignedBoundingBox(mesh) {
-    if (!mesh.vertices || mesh.vertices.length === 0) {
-        console.warn('Mesh has no vertices:', mesh);
+    if (!mesh || !mesh.vertices || mesh.vertices.length === 0) {
+        console.warn('Invalid or empty mesh:', mesh);
         return {
             min: vec3.fromValues(Infinity, Infinity, Infinity),
             max: vec3.fromValues(-Infinity, -Infinity, -Infinity),
@@ -51,6 +51,7 @@ export function calculateAxisAlignedBoundingBox(mesh) {
 }
 
 
+
 export function mergeAxisAlignedBoundingBoxes(boxes) {
     if (!boxes || boxes.length === 0) {
         console.warn('No bounding boxes to merge.');
@@ -60,23 +61,23 @@ export function mergeAxisAlignedBoundingBoxes(boxes) {
         };
     }
 
-    // Validate and filter boxes
+    // Ensure only valid bounding boxes are processed
     const validBoxes = boxes.filter(box => {
-        const isValid = box &&
-            box.min && box.max &&
-            box.min.length === 3 &&
-            box.max.length === 3 &&
-            box.min.every(value => typeof value === 'number') &&
-            box.max.every(value => typeof value === 'number');
-
-        if (!isValid) {
-            console.warn('Invalid bounding box detected:', box);
+        if (
+            !box ||
+            !box.min ||
+            !box.max ||
+            box.min.length !== 3 ||
+            box.max.length !== 3
+        ) {
+            console.warn('Invalid bounding box:', box);
+            return false;
         }
-        return isValid;
+        return true;
     });
 
     if (validBoxes.length === 0) {
-        console.warn('No valid bounding boxes to merge.');
+        console.warn('All bounding boxes are invalid.');
         return {
             min: vec3.fromValues(Infinity, Infinity, Infinity),
             max: vec3.fromValues(-Infinity, -Infinity, -Infinity),
@@ -89,15 +90,17 @@ export function mergeAxisAlignedBoundingBoxes(boxes) {
     };
 
     return {
-        min: validBoxes.reduce(({ min: amin }, { min: bmin }) => {
-            console.log('Reducing min:', amin, bmin);
-            return vec3.min(amin, amin, bmin);
+        min: validBoxes.reduce((current, next) => {
+            return vec3.min(current, current, next.min);
         }, initial.min),
-        max: validBoxes.reduce(({ max: amax }, { max: bmax }) => {
-            console.log('Reducing max:', amax, bmax);
-            return vec3.max(amax, amax, bmax);
+        max: validBoxes.reduce((current, next) => {
+            return vec3.max(current, current, next.max);
         }, initial.max),
     };
 }
+
+
+
+
 
 

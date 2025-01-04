@@ -25,14 +25,12 @@ const renderer = new LitRenderer(canvas);
 await renderer.initialize();
 
 const loader = new GLTFLoader();
-await loader.load(new URL('blender fix/dizajn3cameratest6.gltf', import.meta.url));
-console.log(loader);
+await loader.load(new URL('blender fix/fixedCollision.gltf', import.meta.url));
 const scene = loader.loadScene(loader.defaultScene);
 if (!scene) {
     throw new Error('A default scene is required to run this example');
 }
 
-scene.addComponent(new Light());
 
 const camera = scene.find(node => node.getComponentOfType(Camera));
 if (!camera) {
@@ -45,7 +43,6 @@ let transform = camera.getComponentOfType(Transform);
 
 camera.addComponent(new FirstPersonController(camera, canvas));
 camera.isDynamic = true;
-camera.fov = 30;
 camera.aabb = {
     min: [-0.1, -0.1, -0.1],
     max: [0.1, 0.1, 0.1],
@@ -55,17 +52,41 @@ console.log("camera loaded: ", camera);
 
 const controller = camera.getComponentOfType(FirstPersonController);
 
+//Make unwalkable objects static 
+scene.traverse(node => {
+    if(node.Name.startsWith('Wall'))
+    {
+        node.isStatic = true;
+    }
+});
 
-// const physics = new Physics(scene);
-// scene.traverse(node => {
-//     const model = node.getComponentOfType(Model);
-//     if (!model) {
-//         return;
-//     }
 
-//     const boxes = model.primitives.map(primitive => calculateAxisAlignedBoundingBox(primitive.mesh));
-//     node.aabb = mergeAxisAlignedBoundingBoxes(boxes);
-// });
+//Collision
+const physics = new Physics(scene);
+scene.traverse(node => {
+    const model = node.getComponentOfType(Model);
+    if (!model) {
+        console.warn('Node has no model component:', node.name || node);
+        return;
+    }
+
+    const boxes = model.primitives.map((primitive, index) => {
+        const aabb = calculateAxisAlignedBoundingBox(primitive.mesh);
+        console.log(`Calculated AABB for primitive ${index} of node ${node.name || 'Unnamed'}:`, aabb);
+        return aabb;
+    });
+
+    const validBoxes = boxes.filter(box => box && box.min && box.max);
+    if (validBoxes.length === 0) {
+        console.warn(`No valid AABBs for node: ${node.name || 'Unnamed'}`);
+        return;
+    }
+
+    const mergedBox = mergeAxisAlignedBoundingBoxes(validBoxes);
+    console.log(`Merged AABB for node ${node.name || 'Unnamed'}:`, mergedBox);
+
+    node.aabb = mergedBox;
+});
 
 function update(time, dt) {
     scene.traverse(node => {
@@ -74,7 +95,7 @@ function update(time, dt) {
         }
     });
 
-    //Physics.update(time, dt);
+    physics.update(time, dt);
 }
 
 

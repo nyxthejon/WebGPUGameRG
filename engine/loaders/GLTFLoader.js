@@ -473,6 +473,7 @@ export class GLTFLoader {
         }
 
         const node = new Node();
+        node.Name = gltfSpec.name;
 
         // Add transform
         node.addComponent(new Transform(gltfSpec));
