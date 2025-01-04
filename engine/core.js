@@ -9,3 +9,4 @@ export * from './core/Sampler.js';
 export * from './core/Texture.js';
 export * from './core/Transform.js';
 export * from './core/Vertex.js';
+export * from './core/Light.js';

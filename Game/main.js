@@ -1,8 +1,12 @@
 import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
 import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 import { Transform } from 'engine/core/Transform.js';
+import { Light } from '/engine/core/Light.js';
 import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
-import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
+//import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
+import { LitRenderer } from 'engine/renderers/LitRenderer.js';
+
+
 import { FirstPersonController } from 'engine/controllers/FirstPersonController.js';
 
 import { Camera, Model } from 'engine/core.js';
@@ -16,7 +20,8 @@ import { Physics } from 'engine/Physics.js';
 
 
 const canvas = document.querySelector('canvas');
-const renderer = new UnlitRenderer(canvas);
+//const renderer = new UnlitRenderer(canvas);
+const renderer = new LitRenderer(canvas);
 await renderer.initialize();
 
 const loader = new GLTFLoader();
@@ -27,6 +32,7 @@ if (!scene) {
     throw new Error('A default scene is required to run this example');
 }
 
+scene.addComponent(new Light());
 
 const camera = scene.find(node => node.getComponentOfType(Camera));
 if (!camera) {
@@ -68,7 +74,7 @@ function update(time, dt) {
         }
     });
 
-    Physics.update(time, dt);
+    //Physics.update(time, dt);
 }
 
 

@@ -10,6 +10,7 @@ import {
     Texture,
     Transform,
     Vertex,
+    Light
 } from '../core.js';
 
 // TODO: GLB support
@@ -398,6 +399,34 @@ export class GLTFLoader {
         return model;
     }
 
+    loadLight(nameOrIndex) {
+        if (!this.gltf.extensions?.KHR_lights_punctual?.lights) {
+            return null;
+        }
+
+        const lights = this.gltf.extensions.KHR_lights_punctual.lights;
+        const gltfSpec = this.findByNameOrIndex(lights, nameOrIndex);
+        
+        if (!gltfSpec) {
+            return null;
+        }
+        
+        if (this.cache.has(gltfSpec)) {
+            return this.cache.get(gltfSpec);
+        }
+
+        const light = new Light({
+            color: gltfSpec.color || [1, 1, 1],
+            intensity: gltfSpec.intensity || 1,
+            type: gltfSpec.type || 'point',
+            name: gltfSpec.name || '',
+            range: gltfSpec.range
+        });
+
+        this.cache.set(gltfSpec, light);
+        return light;
+    }
+
     loadCamera(nameOrIndex) {
         const gltfSpec = this.findByNameOrIndex(this.gltf.cameras, nameOrIndex);
         if (!gltfSpec) {
@@ -445,20 +474,32 @@ export class GLTFLoader {
 
         const node = new Node();
 
+        // Add transform
         node.addComponent(new Transform(gltfSpec));
 
+        // Add children
         if (gltfSpec.children) {
             for (const childIndex of gltfSpec.children) {
                 node.addChild(this.loadNode(childIndex));
             }
         }
 
+        // Add camera
         if (gltfSpec.camera !== undefined) {
             node.addComponent(this.loadCamera(gltfSpec.camera));
         }
 
+        // Add mesh
         if (gltfSpec.mesh !== undefined) {
             node.addComponent(this.loadMesh(gltfSpec.mesh));
+        }
+
+        // Add light if present in extensions
+        if (gltfSpec.extensions?.KHR_lights_punctual?.light !== undefined) {
+            const light = this.loadLight(gltfSpec.extensions.KHR_lights_punctual.light);
+            if (light) {
+                node.addComponent(light);
+            }
         }
 
         this.cache.set(gltfSpec, node);
