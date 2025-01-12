@@ -166,7 +166,6 @@ export class LitRenderer extends BaseRenderer {
             return;
         }
 
-
         const viewMatrix = getGlobalViewMatrix(camera);
         const projectionMatrix = getProjectionMatrix(camera);
         if (!viewMatrix) {
@@ -189,9 +188,6 @@ export class LitRenderer extends BaseRenderer {
         const lights = [];
         this.renderPass.setBindGroup(0, cameraBindGroup);
         this.renderPass.setBindGroup(3, this.lightBindGroup);
-
-
-
         
         scene.traverse(node => {
             const light = node.getComponentOfType(Light);
@@ -217,7 +213,6 @@ export class LitRenderer extends BaseRenderer {
 
         // Render scene
         this.renderNode(scene);
-
         this.renderPass.end();
         this.device.queue.submit([encoder.finish()]);
     }

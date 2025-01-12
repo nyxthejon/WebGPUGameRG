@@ -1,5 +1,5 @@
 export const aliveAnts = {
-    value: 1
+    value: 10
 };
 
 export function killAnt() {
@@ -7,7 +7,7 @@ export function killAnt() {
 }
 
 export function resetAnts() {
-    aliveAnts.value = 1;
+    aliveAnts.value = 10;
 
 }
 

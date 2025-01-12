@@ -67,7 +67,6 @@ export class FirstPersonController {
     }
 
     attachItem(item) {
-        console.log("attach");
         this.heldItem = item;
     }
 
@@ -89,13 +88,11 @@ export class FirstPersonController {
     }
 
     update(t, dt) {
-        // Calculate forward and right vectors.
         const cos = Math.cos(this.yaw);
         const sin = Math.sin(this.yaw);
         const forward = [-sin, 0, -cos];
         const right = [cos, 0, -sin];
 
-        // Map user input to the acceleration vector.
         const acc = vec3.create();
         if (this.keys['KeyW']) {
             vec3.add(acc, acc, forward);
@@ -110,10 +107,8 @@ export class FirstPersonController {
             vec3.sub(acc, acc, right);
         }
 
-        // Update velocity based on acceleration.
         vec3.scaleAndAdd(this.velocity, this.velocity, acc, dt * this.acceleration);
 
-        // If there is no user input, apply decay.
         if (!this.keys['KeyW'] &&
             !this.keys['KeyS'] &&
             !this.keys['KeyD'] &&
@@ -123,7 +118,6 @@ export class FirstPersonController {
             vec3.scale(this.velocity, this.velocity, decay);
         }
 
-        // Limit speed to prevent accelerating to infinity and beyond.
         const speed = vec3.length(this.velocity);
         if (speed > this.maxSpeed) {
             vec3.scale(this.velocity, this.velocity, this.maxSpeed / speed);
@@ -141,28 +135,23 @@ export class FirstPersonController {
                 const heldTransform = this.heldItem.getComponentOfType(Transform);
                 const sprayTransform = this.spray.getComponentOfType(Transform);
                 if (heldTransform) {
-                    // Calculate the item's position relative to the camera
                     const cameraTransform = this.node.getComponentOfType(Transform);
                     if (cameraTransform) {
                         const localOffset = vec3.fromValues(...this.itemOffset);
                         const worldOffset = vec3.create();
                         vec3.transformQuat(worldOffset, localOffset, cameraTransform.rotation);
                         vec3.add(heldTransform.translation, cameraTransform.translation, worldOffset);
-
-                        // Align the item's rotation with the camera's rotation and add a slight leftward rotation
                         const additionalRotation = quat.create();
                         quat.rotateY(additionalRotation, quat.create(), 0.4); 
                         const combinedRotation = quat.create();
                         quat.multiply(combinedRotation, cameraTransform.rotation, additionalRotation);
                         heldTransform.rotation = combinedRotation;
-
                         const spraylocalOffset = vec3.fromValues(...this.spraylocalOffset);
                         vec3.transformQuat(worldOffset, spraylocalOffset, cameraTransform.rotation);
                         vec3.add(sprayTransform.translation, cameraTransform.translation, worldOffset);
 
                         if (this.ShootCheck) {
                             if (!this.sprayState) {
-                                
                                 this.sprayState = {
                                     isShooting: true,
                                     travelProgress: 0, 
@@ -203,8 +192,6 @@ export class FirstPersonController {
                                 }
                             }
                         }
-                        
-
                     }
                 }
             }
@@ -212,15 +199,11 @@ export class FirstPersonController {
         }
     }
 
-    
-
     keydownHandler(e) {
-        console.log(`Key pressed: ${e.code}`);
         this.keys[e.code] = true;
     }
     
     keyupHandler(e) {
-        console.log(`Key released: ${e.code}`);
         this.keys[e.code] = false;
     }
 
@@ -254,7 +237,7 @@ export class FirstPersonController {
                     killAnt();
                     updateAntCount();
                     }
-                    }
+                }
              }
           });
         }

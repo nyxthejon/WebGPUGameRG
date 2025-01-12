@@ -7,7 +7,7 @@ import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 import { LitRenderer } from 'engine/renderers/LitRenderer.js';
 import { loadSounds, playSound } from '../engine/soundManager.js';
 import { AntTransforms, RefillTransforms, getRandomAndRemove } from 'engine/core/antPositions.js'
-import { showGameOverOverlay, hideGameOverlay, restartGame, cont } from './overlay.js';
+import { showGameOverOverlay, hideGameOverlay, restartGame } from './overlay.js';
 import { difficulty, getGameTime, makeGameHarder, resetGameDifficulty, returnDifficulty } from '../engine/core/difficulty.js';
 import { resetAnts, returnAliveAnts, updateAntCount } from '../engine/core/AntsAlive.js';
 import { FirstPersonController } from 'engine/controllers/FirstPersonController.js';
@@ -16,20 +16,33 @@ import { calculateAxisAlignedBoundingBox, mergeAxisAlignedBoundingBoxes,} from '
 import { Physics } from 'engine/Physics.js';
 
 
+
+function showLoadingScreen() {
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.style.display = 'flex';
+  }
+  
+  // Hide the loading screen
+  function hideLoadingScreen() {
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.style.display = 'none';
+  }
+
+  showLoadingScreen();
+
+
 const canvas = document.querySelector('canvas');
 const renderer = new LitRenderer(canvas);
 await renderer.initialize();
 
 const loader = new GLTFLoader();
-await loader.load(new URL('blender fix/GOD.gltf', import.meta.url));
+await loader.load(new URL('blender fix/FINAL.gltf', import.meta.url));
 const scene = loader.loadScene(loader.defaultScene);
 if (!scene) {
     throw new Error('A default scene is required to run this example');
 }
 
-
 var ants = [];
-
 
 const camera = scene.find(node => node.getComponentOfType(Camera));
 if (!camera) {
@@ -38,7 +51,6 @@ if (!camera) {
 
 // Ensure the camera has a Transform component
 let transform = camera.getComponentOfType(Transform);
-
 camera.addComponent(new FirstPersonController(camera, canvas));
 camera.isDynamic = true;
 camera.aabb = {
@@ -46,8 +58,7 @@ camera.aabb = {
     max: [0.1, 0.1, 0.1],
 };
 
-console.log("camera loaded: ", camera);
-
+//console.log("camera loaded: ", camera);
 const Weapon = scene.find(node => node.Name === 'Weapon'); 
 const Spray = scene.find(node => node.Name === 'SprayEmitter'); 
 const controller = camera.getComponentOfType(FirstPersonController);
@@ -55,6 +66,8 @@ controller.attachItem(Weapon);
 controller.assignScene(scene);
 controller.assignSprayBall(Spray)
 
+
+//Wall initialization
 scene.traverse(node => {
     if(node.Name.startsWith('Wall'))
     {
@@ -75,14 +88,13 @@ function antLocations()
     scene.traverse(node => {
         if(node.Name.startsWith('ANT'))
         {
-            console.log(node);
+            //console.log(node);
             var position = node.getComponentOfType(Transform);
-            console.log("Ant position", position);
-
+            //console.log("Ant position", position);
             var targetPosition = getRandomAndRemove(AntTransforms);
-            console.log("Target position", targetPosition);
+            //console.log("Target position", targetPosition);
             vec3.copy(position.translation, targetPosition.translation);
-            console.log(AntTransforms.length);
+            //console.log(AntTransforms.length);
             ants.push(node);
         }
     });
@@ -94,25 +106,21 @@ const physics = new Physics(scene);
 scene.traverse(node => {
     const model = node.getComponentOfType(Model);
     if (!model) {
-        console.warn('Node has no model component:', node.name || node);
+        //console.warn('Node has no model component:', node.name || node);
         return;
     }
-
     const boxes = model.primitives.map((primitive, index) => {
         const aabb = calculateAxisAlignedBoundingBox(primitive.mesh);
         //console.log(`Calculated AABB for primitive ${index} of node ${node.name || 'Unnamed'}:`, aabb);
         return aabb;
     });
-
     const validBoxes = boxes.filter(box => box && box.min && box.max);
     if (validBoxes.length === 0) {
-        console.warn(`No valid AABBs for node: ${node.name || 'Unnamed'}`);
+        //console.warn(`No valid AABBs for node: ${node.name || 'Unnamed'}`);
         return;
     }
-
     const mergedBox = mergeAxisAlignedBoundingBoxes(validBoxes);
     //console.log(`Merged AABB for node ${node.name || 'Unnamed'}:`, mergedBox);
-
     node.aabb = mergedBox;
 });
 
@@ -136,31 +144,26 @@ async function initializeSounds() {
     ]);
 }
 
-
 initializeSounds();
+
+
 
 function render() {
     renderer.render(scene, camera);
 }
-
 function resize({ displaySize: { width, height }}) {
     camera.getComponentOfType(Camera).aspect = width / height;
 }
-
 new UpdateSystem({ update, render }).start();
 new ResizeSystem({ canvas, resize }).start();
 
 
 document.getElementById('restart-button').addEventListener('click', restartGame);
 document.getElementById('continue-button').addEventListener('click', startGame);
-
-
 const timerText = document.getElementById('timer-text');
 
-
 function startTimer() {
-    console.log("Game time: ", getGameTime());
-    console.log("Diffcult: ", difficulty.value);
+    console.log("Diffculty: ", difficulty.value);
     let timeLeft = getGameTime(); 
     let timerInterval;
     timerInterval = setInterval(() => {
@@ -201,6 +204,7 @@ function startGame()
     ants = [];
     antLocations();
     startTimer();
+    //playSound('music');
 
     transform = camera.getComponentOfType(Transform);
     vec3.copy(transform.translation, [-0.009912334382534027, 0.7955900430679321, 3.237427234649658]);
@@ -208,17 +212,10 @@ function startGame()
     
     const modelMatrix = mat4.create();
     mat4.translate(modelMatrix, modelMatrix, transform.translation);
-    // const rotationMatrix = mat4.create();
-    // mat4.fromQuat(rotationMatrix, transform.rotation);
-    // mat4.multiply(modelMatrix, modelMatrix, rotationMatrix);
-    // console.log("restart rotation: ", transform.rotation);
 }
 
 
 startGame();
 
-
-
-
-//playSound('music');
+hideLoadingScreen(); 
 
