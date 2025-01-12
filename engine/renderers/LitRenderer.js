@@ -190,6 +190,9 @@ export class LitRenderer extends BaseRenderer {
         this.renderPass.setBindGroup(0, cameraBindGroup);
         this.renderPass.setBindGroup(3, this.lightBindGroup);
 
+
+
+        
         scene.traverse(node => {
             const light = node.getComponentOfType(Light);
             if (light) {
@@ -338,7 +341,9 @@ export class LitRenderer extends BaseRenderer {
         }
 
         for (const child of node.children) {
-            this.renderNode(child, modelMatrix);
+            if(child.isVisible != false){
+                this.renderNode(child, modelMatrix);
+            }
         }
     }
 

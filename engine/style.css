@@ -1,6 +1,8 @@
 body, html {
     margin: 0;
     padding: 0;
+    user-select: none; /* Disable text selection */
+    outline: none; /* Remove focus outline */
 }
 
 * {
@@ -49,8 +51,134 @@ body, html {
 
     animation: spin 2s ease-in-out infinite;
 }
+#crosshair {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 4px; /* Diameter of the dot */
+    height: 4px; /* Diameter of the dot */
+    background-color: white; /* Color of the crosshair */
+    border-radius: 50%; /* Makes it a circle */
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* Allow clicks to pass through */
+}
 
 @keyframes spin {
       0% { transform: rotate(0deg); }
     100% { transform: rotate(1800deg); }
+}
+
+ .fullscreen {
+    position: relative; 
+}
+
+
+#timer-container {
+    position: absolute;
+    top: 5%; 
+    left: 95%; 
+    transform: translate(-50%, -50%); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 100; 
+    pointer-events: none; 
+}
+
+#timer-icon {
+    width: 32px; 
+    height: 32px;
+    margin-right: 10px; 
+    filter: brightness(0) invert(1); 
+}
+
+
+#timer-text {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+
+#antNumber-container {
+    position: absolute;
+    top: 5%; 
+    left: 5%; 
+    transform: translate(-50%, -50%); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 100; 
+    pointer-events: none; 
+}
+
+#antNumber-icon {
+    width: 32px; 
+    height: 32px;
+    margin-right: 10px; 
+    filter: brightness(0) invert(1); 
+}
+
+
+#antNumber-text {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+#gameover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999; /* Ensure it appears above all other elements */
+    color: white;
+    font-family: Arial, sans-serif;
+    visibility: hidden;
+}
+
+#gameover-title {
+    font-size: 48px;
+    visibility: hidden;
+}
+
+#gameover-title-win {
+    font-size: 48px;
+    visibility: hidden;
+}
+
+#gameover-score {
+    font-size: 24px;
+    margin-bottom: 50px;
+}
+
+
+.gameover-button {
+    padding: 10px 20px;
+    font-size: 18px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#continue-button{
+    background-color: blueviolet;
+    color: white;
+    visibility: hidden;
+}
+
+#restart-button {
+    background-color: #4CAF50;
+    color: white;
 }

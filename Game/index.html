@@ -13,11 +13,30 @@
     }
     </script>
     <script type="module" src="main.js"></script>
+    <script type="script" src="overlay.js"></script>
     <link rel="stylesheet" href="../../../engine/style.css">
 </head>
 <body>
     <div class="fullscreen no-touch pixelated">
         <canvas></canvas>
+        <div id="timer-container">
+            <img id="timer-icon" src="../img/timer.png" alt="Timer Icon">
+            <span id="timer-text">120</span>
+        </div>
+
+        <div id="antNumber-container">
+            <img id="antNumber-icon" src="../img/ant.png" alt="ant Icon">
+            <span id="antNumber-text">10</span>
+        </div>
+
+        <div id="gameover-overlay">
+            <div id="gameover-title">Game Over</div>
+            <div id="gameover-title-win">You won</div>
+            <div id="gameover-score">1</div>
+            <button id="restart-button" class="gameover-button">Restart</button>
+            <button id="continue-button" class="gameover-button">Continue</button>
+        </div>
     </div>
+    <div id="crosshair"></div>
 </body>
 </html>
